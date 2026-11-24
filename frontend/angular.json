@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "projects": {
+    "h3o": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.json",
+            "index": "src/index.html",
+            "outputPath": "dist",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "../node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.css"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
+                }
+              ]
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "development": {
+              "buildTarget": "h3o:build"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "build-compat": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "optimization": false,
+            "index": "src/index.html",
+            "outputPath": "dist/browser",
+            "main": "src/main.ts",
+            "tsConfig": "tsconfig.json",
+            "styles": [
+              "../node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.css"
+            ],
+            "sourceMap": false,
+            "aot": true,
+            "assets": [
+              {
+                "input": "public",
+                "output": "/",
+                "glob": "**/*"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

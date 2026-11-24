@@ -1,0 +1,21 @@
+{
+  "name": "h3o-plus-smart",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "build": "npm run build -w backend && npm run build:compat -w frontend",
+    "start": "npm run start -w backend",
+    "dev": "concurrently \"npm run start:dev -w backend\" \"npm run start -w frontend\"",
+    "test": "npm run test -w backend",
+    "vapid": "web-push generate-vapid-keys --json",
+    "build:optimized": "npm run build -w backend && npm run build -w frontend",
+    "db:check": "node scripts/check-db.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "web-push": "^3.6.7"
+  }
+}

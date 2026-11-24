@@ -1,5 +1,19 @@
 # Verificación realizada
 
+## Actualización del 24 de noviembre de 2026: metas y pausas activas
+
+- Backend compilado; `npm test`: 13 pruebas aprobadas, 0 fallos.
+- Frontend compilado con `npm run build:compat -w frontend`.
+- `scripts/smoke.mjs`: 36 comprobaciones HTTP aprobadas con base temporal, incluidas persistencia de dos horas de pausa y validación de preferencias inválidas.
+- Avisos de agua probados por debajo, exactamente al nivel y por encima del avance proporcional; sin aviso al inicio del horario ni fuera de él.
+- Dos pausas programadas por día local, independientes del consumo de agua; propuestas de cinco minutos; comprobación de duplicados y combinación con aviso de agua coincidente mediante dobles de prueba.
+- Migración aditiva probada en PostgreSQL real dentro de una transacción revertida: conserva el número de usuarios. La base publicada no se alteró en esta comprobación.
+- Navegador local: ambos interruptores, guardado de 10:30/16:30 y persistencia tras recargar comprobados. Captura incluida como evidencia de la versión local.
+- Los campos nuevos se añaden al arrancar el backend actualizado (`active_breaks`, `break_first_min`, `break_second_min`), sin borrar datos. Las pausas empiezan desactivadas y con horarios iniciales 10:00/16:00.
+- Pendientes: publicación de esta actualización en Render y verificación de recepción física de sus notificaciones. No se enviaron Web Push reales en estas pruebas.
+
+---
+
 Fecha local: 23 de noviembre de 2026, America/Guayaquil.
 
 ## Resultados observados

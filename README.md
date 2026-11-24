@@ -114,10 +114,10 @@ Abre http://localhost:4317 . Este modo usa **pg-mem**, con un aviso visible en p
 7. Mira **Recompensas**: los puntos se calculan con registros reales (10 puntos por cada 250 ml acumulados en el día, máximo 100 puntos/día), con catálogo de demostración. Eliminar consumos recalcula los puntos.
 8. Cierra sesión y entra de nuevo para comprobar persistencia. Registra una segunda cuenta y comprueba que sus consumos no incluyen los de la primera.
 9. Si tienes VAPID configurado, entra en **Recordatorios**, activa notificaciones, acepta el permiso y pulsa **Probar envío real**. Confirma visualmente que recibiste el aviso; una respuesta «aceptado» del proveedor no basta para confirmar recepción.
-10. Activa los recordatorios automáticos, configura inicio para el próximo minuto, final posterior y frecuencia de 15 minutos. Guarda antes de que llegue el minuto inicial. La comprobación se ejecuta al segundo 0 de cada minuto. La cuenta debe estar por debajo de la meta.
+10. Activa los avisos de agua y configura un horario y frecuencia. La comprobación se ejecuta al segundo 0 de cada minuto. El agua se recuerda únicamente si el consumo registrado está por debajo del avance proporcional de la meta. Al inicio del horario se esperan 0 ml, por lo que no hay aviso inmediato. Para probar, configura una ventana que ya haya comenzado y espera al próximo intervalo con un consumo inferior al previsto.
 11. Cierra la pestaña, deja el backend encendido y espera al horario configurado. Verifica el aviso. Cerrar la página y forzar la detención del navegador o del sistema no son equivalentes.
 
-Cerrar sesión desactiva primero la suscripción de **ese dispositivo** para evitar avisos vinculados a una cuenta anterior en navegadores compartidos. «Desactivar» elimina la suscripción local y de la base; el interruptor de horarios detiene los recordatorios de la cuenta en todos sus dispositivos. Los envíos de prueba son manuales y no dependen del horario.
+Cerrar sesión desactiva primero la suscripción de **ese dispositivo** para evitar avisos vinculados a una cuenta anterior en navegadores compartidos. «Desactivar» elimina la suscripción local y de la base. Los interruptores de agua y pausas son independientes y afectan a la cuenta en todos sus dispositivos. Los envíos de prueba son manuales y no dependen del horario.
 
 ## 6. Probar desde el celular
 
@@ -163,7 +163,8 @@ Vuelve a iniciar sesión. Aparecerá **Administración**: listado de usuarios, m
 - El frontend llama a Push API, obtiene `endpoint`, `p256dh` y `auth`, y los envía a la API autenticada. La clave privada VAPID solo se usa en el servidor.
 - PostgreSQL guarda varias suscripciones por usuario. Un endpoint no se puede transferir silenciosamente a otra cuenta.
 - Nest Schedule ejecuta el planificador cada minuto, usa la zona IANA del usuario y compara la hora con los intervalos guardados. La ventana debe estar dentro del mismo día.
-- Se omiten los avisos cuando la meta ya se completó. Una clave única `(user_id, slot)` evita reclamar el mismo recordatorio desde varias instancias.
+- Los avisos de agua comparan lo registrado con `meta × fracción transcurrida del horario`, redondeado hacia abajo a ml enteros. Se omiten si el usuario va al ritmo previsto, está por encima o completó la meta. Una clave única `(user_id, slot)` evita reclamar el mismo recordatorio desde varias instancias.
+- Las pausas activas se pueden activar por separado: exactamente dos horas diarias, inicialmente 10:00 y 16:00, ajustables en la zona horaria del perfil. Cada una propone cinco minutos de caminata y movimientos suaves. No dependen del avance del agua. Si coinciden con un aviso de agua, ambos se combinan en una notificación. El sistema no mide actividad física ni confirma que la pausa se realizó.
 - Los errores 404/410 eliminan suscripciones caducadas. Los errores restantes se registran sin imprimir endpoints ni claves.
 - Se aceptan endpoints HTTPS de FCM, Mozilla, Apple y Windows; otros proveedores necesitan revisión y ampliar la lista permitida para evitar SSRF.
 - La semántica del planificador es **como máximo un intento por intervalo**: registra `claimed`, después `accepted` o `failed`. Una caída después de reclamar puede dejar `claimed`. No hay reintentos ni recuperación de intervalos perdidos; iniciar el servidor tarde no envía avisos retroactivos. No es una cola de entrega garantizada.

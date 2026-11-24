@@ -7,19 +7,20 @@ import webpush from 'web-push';
 test('planificador: guarda un envío único y omite usuarios con meta completada',async()=>{
   process.env.DB_MEMORY='true';process.env.NODE_ENV='test';
   process.env.VAPID_PUBLIC_KEY='public-test';process.env.VAPID_PRIVATE_KEY='private-test';process.env.VAPID_SUBJECT='mailto:test@example.com';
-  const db=new Database();await db.onModuleInit();const now=new Date();const local=localTime(now,'America/Guayaquil');
+  const db=new Database();await db.onModuleInit();const now=new Date('2026-11-23T15:00:00Z');
   try{
-    const user=(await db.query('INSERT INTO users(email,password,name,start_min,end_min,frequency,reminders) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *',['schedule@example.com','hash','Prueba',local.minute,1439,15,true])).rows[0];
+    const user=(await db.query('INSERT INTO users(email,password,name,start_min,end_min,frequency,reminders) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *',['schedule@example.com','hash','Prueba',480,1200,60,true])).rows[0];
     const push=new PushService(db);let sends=0;push.send=async()=>{sends++;return {accepted:1,total:1};};
-    await push.tick();await push.tick();assert.equal(sends,1);
+    await push.tick(now);await push.tick(now);assert.equal(sends,1);
     assert.equal((await db.query('SELECT status FROM deliveries')).rows[0].status,'accepted');
     await db.query('DELETE FROM deliveries');
-    await db.query('INSERT INTO intakes(user_id,ml) VALUES($1,$2)',[user.id,2000]);
-    await push.tick();assert.equal(sends,1);
+    await db.query('INSERT INTO intakes(user_id,ml,created_at) VALUES($1,$2,$3)',[user.id,2000,now]);
+    await push.tick(now);assert.equal(sends,1);
   }finally{await db.pool.end();}
 });
 test('push: limpia suscripciones caducadas y distingue aceptación de recepción',async()=>{
   process.env.DB_MEMORY='true';process.env.NODE_ENV='test';
+  process.env.VAPID_PUBLIC_KEY='public-test';process.env.VAPID_PRIVATE_KEY='private-test';process.env.VAPID_SUBJECT='mailto:test@example.com';
   const db=new Database();await db.onModuleInit();
   const originalSet=webpush.setVapidDetails;const originalSend=webpush.sendNotification;
   try{

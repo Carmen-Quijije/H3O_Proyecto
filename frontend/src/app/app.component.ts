@@ -10,7 +10,7 @@ type View='dashboard'|'history'|'reminders'|'rewards'|'profile'|'admin';
 export class AppComponent implements OnInit{
   user=signal<User|null>(null);entries=signal<Intake[]>([]);view=signal<View>('dashboard');message=signal('');error=signal('');busy=signal(false);loading=signal(true);storage=signal('');
   authOpen=signal(false);register=signal(false);email='';password='';name='';custom=300;period=signal(7);rewards=signal<any>({points:0,items:[]});admin=signal<any>(null);qr=signal('');subscribed=signal(false);
-  profile:Partial<User>={};start='08:00';end='20:00';qrUrl=location.origin;readonly Math=Math;
+  profile:Partial<User>={};start='08:00';end='20:00';breakFirst='10:00';breakSecond='16:00';qrUrl=location.origin;readonly Math=Math;
   nav:{key:View;icon:string;label:string}[]=[{key:'dashboard',icon:'◫',label:'Mi día'},{key:'history',icon:'▥',label:'Historial'},{key:'reminders',icon:'♧',label:'Recordatorios'},{key:'rewards',icon:'◇',label:'Recompensas'},{key:'profile',icon:'◎',label:'Mi perfil'}];
   constructor(public api:Api){}
   async ngOnInit(){
@@ -20,7 +20,7 @@ export class AppComponent implements OnInit{
   async action(fn:()=>Promise<void>){if(this.busy())return;this.busy.set(true);this.error.set('');this.message.set('');try{await fn();}catch(e){this.showError(e);}finally{this.busy.set(false);}}
   async authenticate(){await this.action(async()=>{const data=await this.api.request('auth/'+(this.register()?'register':'login'),'POST',{email:this.email,password:this.password,...(this.register()?{name:this.name}:{})});this.api.saveToken(data.token);this.user.set(data.user);this.password='';this.authOpen.set(false);await this.load();});}
   async load(){const [entries,rewards]=await Promise.all([this.api.request<Intake[]>('intakes'),this.api.request('rewards')]);this.entries.set(entries);this.rewards.set(rewards);this.copyProfile();}
-  copyProfile(){this.profile={...this.user()!};this.start=this.time(this.user()!.start_min);this.end=this.time(this.user()!.end_min);}
+  copyProfile(){this.profile={...this.user()!};this.start=this.time(this.user()!.start_min);this.end=this.time(this.user()!.end_min);this.breakFirst=this.time(this.user()!.break_first_min??600);this.breakSecond=this.time(this.user()!.break_second_min??960);}
   time(n:number){return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`;}
   minutes(t:string){const [h,m]=t.split(':').map(Number);return h*60+m;}
   day(date:string|Date){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:this.user()?.timezone||'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(date));return ['year','month','day'].map(k=>parts.find(x=>x.type===k)!.value).join('-');}
@@ -32,7 +32,7 @@ export class AppComponent implements OnInit{
   get chartData(){const dates:string[]=[];const now=new Date();const today=this.day(now);const anchor=new Date(today+'T12:00:00Z');for(let i=this.period()-1;i>=0;i--){const d=new Date(anchor);d.setUTCDate(d.getUTCDate()-i);dates.push(d.toISOString().slice(0,10));}return {labels:dates.map(d=>`${d.slice(8)}/${d.slice(5,7)}`),values:dates.map(d=>this.entries().filter(e=>this.day(e.created_at)===d).reduce((n,e)=>n+e.ml,0))};}
   async add(ml:number){await this.action(async()=>{if(!Number.isInteger(ml)||ml<1||ml>5000)throw new Error('Ingresa una cantidad entera entre 1 y 5000 ml');await this.api.request('intakes','POST',{ml});await this.load();this.message.set(`${ml} ml registrados. ¡Un paso más en tu hábito!`);});}
   async remove(id:number){await this.action(async()=>{await this.api.request('intakes/'+id,'DELETE');await this.load();this.message.set('Registro eliminado');});}
-  async save(){await this.action(async()=>{const p=this.profile;const payload={name:p.name,goal:Number(p.goal),timezone:p.timezone,frequency:Number(p.frequency),start_min:this.minutes(this.start),end_min:this.minutes(this.end),reminders:p.reminders};this.user.set(await this.api.request('me','PUT',payload));this.copyProfile();this.message.set('Preferencias guardadas');});}
+  async save(){await this.action(async()=>{const p=this.profile;const payload={name:p.name,goal:Number(p.goal),timezone:p.timezone,frequency:Number(p.frequency),start_min:this.minutes(this.start),end_min:this.minutes(this.end),reminders:p.reminders,active_breaks:p.active_breaks??false,break_first_min:this.minutes(this.breakFirst),break_second_min:this.minutes(this.breakSecond)};this.user.set(await this.api.request('me','PUT',payload));this.copyProfile();this.message.set('Preferencias guardadas');});}
   async navigate(view:View){this.view.set(view);window.scrollTo({top:0,behavior:'auto'});if(view==='dashboard')this.period.set(7);this.error.set('');this.message.set('');if(view==='admin')await this.action(async()=>{this.admin.set(await this.api.request('admin'));});if(view==='reminders')await this.syncPush();}
   async logout(){await this.action(async()=>{if(this.subscribed()){await this.disablePush();}this.api.saveToken('');this.user.set(null);this.entries.set([]);this.view.set('dashboard');});}
   async syncPush(){if(!('serviceWorker'in navigator))return;const reg=await navigator.serviceWorker.getRegistration();this.subscribed.set(!!(await reg?.pushManager?.getSubscription()));}

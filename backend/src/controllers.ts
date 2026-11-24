@@ -29,7 +29,10 @@ export class AppController {
   @Put('me') async settings(@Req() req: any,@Body() body: SettingsDto) {
     try { new Intl.DateTimeFormat('es',{timeZone:body.timezone}).format(); } catch { throw new BadRequestException('Zona horaria no válida'); }
     if(body.start_min>=body.end_min) throw new BadRequestException('La hora final debe ser posterior a la inicial');
-    return safe((await this.db.query('UPDATE users SET name=$1,goal=$2,timezone=$3,frequency=$4,start_min=$5,end_min=$6,reminders=$7 WHERE id=$8 RETURNING *',[body.name.trim(),body.goal,body.timezone,body.frequency,body.start_min,body.end_min,body.reminders,req.user.id])).rows[0]);
+    const first = body.break_first_min ?? req.user.break_first_min;
+    const second = body.break_second_min ?? req.user.break_second_min;
+    if(first >= second) throw new BadRequestException('Elige dos horas distintas para las pausas, en orden de mañana a tarde');
+    return safe((await this.db.query('UPDATE users SET name=$1,goal=$2,timezone=$3,frequency=$4,start_min=$5,end_min=$6,reminders=$7,active_breaks=$8,break_first_min=$9,break_second_min=$10 WHERE id=$11 RETURNING *',[body.name.trim(),body.goal,body.timezone,body.frequency,body.start_min,body.end_min,body.reminders,body.active_breaks ?? req.user.active_breaks,first,second,req.user.id])).rows[0]);
   }
   @Get('intakes') async intakes(@Req() req: any) {
     return (await this.db.query('SELECT id,ml,created_at FROM intakes WHERE user_id=$1 ORDER BY created_at DESC LIMIT 10000',[req.user.id])).rows;

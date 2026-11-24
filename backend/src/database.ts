@@ -38,6 +38,12 @@ export class Database implements OnModuleInit {
         slot TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'claimed', PRIMARY KEY(user_id,slot)
       );
     `);
+    // Migración aditiva e idempotente: conserva perfiles, consumos y suscripciones existentes.
+    await this.pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS active_breaks BOOLEAN NOT NULL DEFAULT false;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS break_first_min INTEGER NOT NULL DEFAULT 600;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS break_second_min INTEGER NOT NULL DEFAULT 960;
+    `);
   }
   async query(sql: string, args: any[] = []) { return this.pool.query(sql, args); }
 }

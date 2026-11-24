@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-export interface User {id:number;name:string;email:string;role:string;goal:number;timezone:string;frequency:number;start_min:number;end_min:number;reminders:boolean;}
+export interface User {id:number;name:string;email:string;role:string;goal:number;timezone:string;frequency:number;start_min:number;end_min:number;reminders:boolean;active_breaks:boolean;break_first_min:number;break_second_min:number;}
 export interface Intake {id:number;ml:number;created_at:string;}
 @Injectable({providedIn:'root'})
 export class Api {

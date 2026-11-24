@@ -4,5 +4,39 @@
 @media(max-width:1150px){.app-shell{grid-template-columns:195px minmax(0,1fr)}.sidebar{padding:28px 12px}.dashboard-content{padding:28px 24px 0}.topbar{padding:0 24px}.stat{padding:18px 12px;gap:10px}.stat-icon{width:38px;height:42px}.dashboard-grid{gap:18px;grid-template-columns:1.15fr 1fr}.panel{padding:20px}.bottle-layout{grid-template-columns:.8fr 1fr;gap:6px}.bottle-scene{transform:scale(.87);margin-left:-5px;margin-right:-5px}.big-percent{font-size:2.8rem}.quick-add{gap:6px}.hero{gap:20px}}
 @media(max-width:900px){.dashboard-grid{grid-template-columns:1fr}.bottle-layout{grid-template-columns:1fr 1fr}.bottle-scene{transform:none;margin:auto}.bottle-layout{min-height:300px}.settings-grid{grid-template-columns:1fr}.reward-grid{grid-template-columns:1fr}.hero h1{font-size:3rem}.hero-visual{transform:scale(.85)}.date-top{display:none}.sidebar-tip{display:none}.logout{margin-top:auto}.hero{min-height:520px}.stat strong{font-size:1.45rem}.stat-icon{display:none}}
 @media(max-width:650px){.app-shell{display:block}.sidebar{height:auto;position:relative;padding:15px 16px 9px;border-bottom:1px solid var(--line)}.sidebar .brand{font-size:1.6rem;margin:0 0 16px}.workspace-label{display:none}.sidebar nav{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}.sidebar nav button{font-size:.75rem;padding:10px;white-space:nowrap}.sidebar nav button span{display:none}.logout{position:absolute;top:22px;right:16px;margin:0;padding:0;font-size:.73rem}.topbar{height:58px;padding:0 18px;font-size:.75rem}.avatar{width:33px;height:33px}.dashboard-content{padding:25px 16px 0}.page-heading{align-items:flex-start}.page-heading h1{font-size:1.8rem}.page-heading p{font-size:.82rem}.page-heading>.btn{font-size:.73rem;padding:9px 10px;white-space:nowrap}.eyebrow{font-size:.62rem}.stats-grid{gap:8px}.stat{padding:14px 10px;border-radius:10px}.stat p{font-size:.64rem;line-height:1.4;min-height:26px}.stat strong{font-size:1.3rem}.stat strong small{font-size:.63rem}.panel{padding:20px}.progress-panel{padding:18px}.panel-heading h2{font-size:1rem}.bottle-layout{gap:5px}.progress-copy h3{font-size:1rem}.big-percent{font-size:2.8rem}.progress-copy p{font-size:.77rem}.bottle-scene{transform:scale(.9);width:150px;margin-left:0}.color-legend{font-size:.6rem}.medical-note{font-size:.65rem}.app-footer{font-size:.6rem}.landing-nav{height:85px;padding:16px}.landing-nav nav{gap:8px}.landing-nav nav>a{display:none}.landing-nav .brand{font-size:1.6rem}.landing-nav .brand small{display:none}.landing-nav .btn{font-size:.7rem;padding:8px}.hero{display:flex;flex-direction:column;gap:10px;text-align:center;padding:40px 22px 0}.hero h1{font-size:3rem}.hero p{font-size:1rem}.hero-visual{height:400px;width:100%;margin-top:10px;transform:scale(.88)}.floating-card{right:-4px;bottom:10px}.orbit{width:300px;height:300px}.orbit-two{width:360px;height:360px}.feature-grid{grid-template-columns:1fr;margin:15px 0 30px;gap:14px;padding:0 16px}.feature-grid article{padding:24px}.qr-landing{margin:16px;width:auto;padding:25px;flex-direction:column;align-items:flex-start}.qr-landing img{align-self:center}.auth-card{padding:30px 24px}.auth-overlay{padding:16px}.page-heading .segmented{align-self:flex-end}.segmented button{padding:6px 9px;font-size:.75rem}}
+/* Tarjeta lateral compacta y salida visible, con espacio propio para cada elemento. */
+.sidebar{overflow-y:auto;padding-bottom:20px}
+.sidebar .brand{margin-bottom:28px}
+.sidebar nav,.sidebar .brand,.workspace-label{flex-shrink:0}
+.sidebar nav{margin-bottom:16px}
+.sidebar-tip{flex-shrink:0;padding:14px 16px;margin-top:auto}
+.sidebar-tip strong{font-size:.875rem;line-height:1.45}
+.sidebar-tip p{font-size:.875rem;line-height:1.45;margin:7px 0 0}
+.sidebar-drops{height:30px;display:flex;align-items:flex-start;gap:7px;margin-bottom:6px;color:#20a8cf;overflow:hidden}
+.sidebar-drops svg{width:14px;height:22px;animation:sidebar-drop-fall 2.8s ease-in-out infinite}
+.sidebar-drops svg:nth-child(2){animation-delay:.35s;color:#43c4df}
+.sidebar-drops svg:nth-child(3){animation-delay:.7s;color:#76d6e9}
+@keyframes sidebar-drop-fall{0%,100%{transform:translateY(0);opacity:.75}50%{transform:translateY(7px);opacity:1}}
+.sidebar .logout{flex-shrink:0;display:flex;align-items:center;justify-content:center;min-height:44px;width:100%;margin:14px 0 0;padding:11px 14px;border:1px solid #102e4c;border-radius:9px;background:#102e4c;color:#fff;font-size:.875rem;line-height:1.4;font-weight:650;text-align:center}
+.sidebar .logout:hover:not(:disabled){background:#195476;border-color:#195476}
+.sidebar .logout:focus-visible{outline:3px solid #42c9e8;outline-offset:3px}
+@media(max-width:900px) and (min-width:651px){.sidebar .logout{margin-top:auto}}
+@media(max-width:650px){.sidebar{overflow:visible;padding-bottom:9px}.sidebar .brand{margin-bottom:16px}.sidebar nav{margin-bottom:0}.sidebar .logout{position:absolute;top:15px;right:16px;width:auto;min-height:38px;margin:0;padding:8px 12px;font-size:.8125rem}}
+.daily-points{margin-bottom:24px}
+.habit-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.habit-actions article{padding:18px;border:1px solid var(--line);border-radius:11px;display:flex;flex-direction:column;align-items:flex-start}
+.habit-actions strong{font-size:.95rem}.habit-actions p{font-size:.875rem;margin:9px 0 16px}.habit-actions .btn,.habit-complete{margin-top:auto;font-size:.875rem}
+.habit-complete{color:#117554;font-weight:650;padding:11px 0}
+.next-reward{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:20px 0;color:var(--navy)}.next-reward span{color:var(--muted);font-size:.9rem}
+.reward-card{display:flex;flex-direction:column}.reward-card .reward-symbol{flex-shrink:0}.reward-card>p{font-size:.9rem}.reward-cost{font-size:1.2rem;margin:5px 0}.reward-unlocked{border-color:#8fd2df}.reward-downloads{display:flex;gap:9px;flex-wrap:wrap;margin-top:auto}.reward-downloads .btn{padding:9px 12px;font-size:.875rem}.reward-card>.pill{align-self:flex-start;margin-top:auto}
+.card-personalization{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:32px;margin-top:25px}
+.personal-card{padding:28px;border-radius:18px;background:#102e4c;color:white;min-height:260px;box-shadow:0 14px 30px #102e4c14;overflow-wrap:anywhere}
+.personal-card>span{font-size:1.6rem;font-weight:750}.personal-card b{font-size:.8rem}.personal-card>small{display:block;color:#94dbea;font-size:.75rem;letter-spacing:.08em;margin-top:14px}.personal-card>strong{display:block;font-size:1.5rem;margin-top:15px}.personal-card>p{color:#d9f2f7;margin:14px 0;font-size:.9rem}.personal-card.card-sky{background:#e4f7fc;color:#102e4c;border:1px solid #99dce9}.card-sky>small{color:#287991}.card-sky>p{color:#435d73}
+@media(max-width:1000px){.habit-actions{grid-template-columns:1fr}.card-personalization{grid-template-columns:1fr}.next-reward{align-items:flex-start;flex-direction:column;gap:5px}}
+.personal-card{position:relative;padding-right:28px}
+.personal-card>strong{padding-right:65px}
+.personal-card>.card-medal{position:absolute;right:22px;top:83px;width:49px;height:70px;display:block}
+.card-medal svg{width:100%;height:100%}
+.personal-card>.card-motivation{font-size:.9rem;line-height:1.65;margin-top:22px;padding-top:18px;border-top:1px solid #67aec14d}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 

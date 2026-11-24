@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Length, IsInt, Min, Max, IsBoolean, Matches, IsUrl, IsOptional } from 'class-validator';
+import { IsEmail, IsString, Length, IsInt, Min, Max, IsBoolean, Matches, IsUrl, IsOptional, IsIn } from 'class-validator';
 export class RegisterDto {
   @IsEmail() @Length(3,254) email!: string;
   @IsString() @Length(10,100) password!: string;
@@ -28,3 +28,8 @@ export class SubscriptionDto {
   @IsString() @Matches(/^[A-Za-z0-9_-]{22,24}$/) auth!: string;
 }
 export class EndpointDto { @IsString() @Length(10,2048) endpoint!: string; }
+export class BreakCompletedDto { @IsInt() @IsIn([1,2]) slot!:number; }
+export class RewardDesignDto {
+  @IsOptional() @IsIn(['navy','sky']) theme:'navy'|'sky'='navy';
+  @IsOptional() @IsIn(['space','step','rhythm']) phrase:'space'|'step'|'rhythm'='space';
+}

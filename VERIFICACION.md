@@ -1,5 +1,18 @@
 # Verificación realizada
 
+## Recompensas digitales: 24 de noviembre de 2026
+
+- Backend y frontend compilados. 18 pruebas aprobadas y 45 comprobaciones HTTP con base temporal.
+- Máximo diario de 20 puntos: agua 10, primera pausa 5, segunda pausa 5. Las confirmaciones repetidas y concurrentes no duplican puntos. Eliminar consumos no resta lo obtenido.
+- Desbloqueos permanentes a 100, 300 y 600 puntos, sin descuentos de saldo.
+- PDF renderizados con Poppler y revisados: tarjeta de una página, mini kit de cinco páginas con 3 recetas y agenda de seis páginas con cuatro semanas. Verificación adicional de nombres largos.
+- Descargas PDF autenticadas y privadas comprobadas, rechazo sin sesión y bloqueo de premios pendientes.
+- Navegador: confirmar pausa suma 5 puntos y deshabilita el botón; selección de diseño/frase y descarga real de PNG 960 x 600, abierta y revisada.
+- Cuenta temporal de prueba con puntos precargados, sin modificar usuarios reales. Pendiente publicar y comprobar esta actualización en Render.
+
+---
+
+
 ## Actualización del 24 de noviembre de 2026: metas y pausas activas
 
 - Backend compilado; `npm test`: 13 pruebas aprobadas, 0 fallos.

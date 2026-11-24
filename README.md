@@ -2,7 +2,7 @@
 
 Aplicación para registrar hábitos de consumo de agua. Angular 21 y TypeScript, Bootstrap 5, Chart.js, NestJS 11, PostgreSQL y Web Push VAPID. Interfaz en español adaptable a celulares, tablets y computadoras.
 
-El porcentaje de la botella representa **consumo registrado / meta personal**, no un diagnóstico médico ni una medición fisiológica. Las recompensas son una demostración; no hay canjes comerciales reales.
+El porcentaje de la botella representa **consumo registrado / meta personal**, no un diagnóstico médico ni una medición fisiológica. Las recompensas son descargas digitales reales y no incluyen descuentos ni productos físicos.
 
 ## 1. Requisitos en Windows
 
@@ -111,7 +111,7 @@ Abre http://localhost:4317 . Este modo usa **pg-mem**, con un aviso visible en p
 4. Registra 250 ml: verás 12% y botella roja. Registra otros 250 ml: 25%, naranja. Otros 500 ml: 50%, amarillo. Otros 500 ml: 75%, verde. Otros 500 ml: 100%, azul.
 5. Prueba 600 ml y una cantidad personalizada. Puedes eliminar registros erróneos.
 6. Abre **Historial** y alterna 7 y 30 días. Los días sin registros muestran cero. La línea corresponde a la meta actual, no a metas históricas. Las fechas se agrupan en la zona del perfil; las horas del detalle usan la zona del dispositivo. Se recuperan hasta 10.000 registros recientes.
-7. Mira **Recompensas**: los puntos se calculan con registros reales (10 puntos por cada 250 ml acumulados en el día, máximo 100 puntos/día), con catálogo de demostración. Eliminar consumos recalcula los puntos.
+7. Mira **Recompensas**: se otorgan 10 puntos por registrar agua durante el día, una sola vez e independientemente del volumen. Confirma cada una de las dos pausas solo después de realizarla: cada una suma 5 puntos. El máximo es 20 puntos por día y usuario. Corregir o eliminar un consumo no descuenta puntos ya obtenidos. Los registros anteriores se reconocen con 10 puntos por fecha registrada; no se inventan confirmaciones de pausas pasadas.
 8. Cierra sesión y entra de nuevo para comprobar persistencia. Registra una segunda cuenta y comprueba que sus consumos no incluyen los de la primera.
 9. Si tienes VAPID configurado, entra en **Recordatorios**, activa notificaciones, acepta el permiso y pulsa **Probar envío real**. Confirma visualmente que recibiste el aviso; una respuesta «aceptado» del proveedor no basta para confirmar recepción.
 10. Activa los avisos de agua y configura un horario y frecuencia. La comprobación se ejecuta al segundo 0 de cada minuto. El agua se recuerda únicamente si el consumo registrado está por debajo del avance proporcional de la meta. Al inicio del horario se esperan 0 ml, por lo que no hay aviso inmediato. Para probar, configura una ventana que ya haya comenzado y espera al próximo intervalo con un consumo inferior al previsto.
@@ -147,7 +147,21 @@ Los modos de concentración, permisos revocados, ahorro de batería, conectivida
 
 Documentación oficial de compatibilidad: [Web Push en iOS/iPadOS](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/) y [Apple: envío de Web Push](https://developer.apple.com/documentation/usernotifications/sending-web-push-notifications-in-web-apps-and-browsers).
 
-## 7. Administración
+## 7. Recompensas y administración
+
+### Recompensas digitales
+
+- 20 puntos: tarjeta personalizada con nombre, fecha de inicio, dos diseños y tres frases; descarga PNG o PDF.
+- 180 puntos: mini kit PDF de cinco páginas con tres recetas originales, una rutina suave de cinco minutos y un organizador semanal.
+- 360 puntos: agenda PDF personalizada de seis páginas con cuatro semanas de seguimiento, dos rutinas suaves y una página de logros.
+- Los premios se desbloquean sin descontar puntos y pueden volver a descargarse. La racha reconoce días seguidos, pero no es obligatoria para conseguir premios: interrumpirla no elimina puntos ni descargas.
+- Las pausas se confirman manualmente. La aplicación no mide ni certifica que una persona haya realizado actividad física.
+- `reward_actions` limita cada acción por usuario y fecha local mediante una clave única; `reward_unlocks` conserva los desbloqueos. `intakes.reward_day` fija la fecha de puntos de cada consumo para conservar el historial frente a cambios posteriores de zona.
+- Las descargas PDF y los datos para generar la tarjeta PNG exigen sesión y desbloqueo en el servidor. Se sirven con `Cache-Control: no-store`; el Service Worker no almacena respuestas de API. El PDF se genera en memoria, sin archivos personales públicos.
+- No se necesitan nuevas variables de entorno. Al arrancar, el backend añade las tablas y columna sin borrar los consumos existentes. Los PDF se generan con PDFKit, declarado como dependencia de producción.
+- Las recetas son ideas culinarias generales, no un plan nutricional personalizado ni contenido certificado por un profesional.
+
+### Panel administrativo
 
 Registra primero tu cuenta y, desde la carpeta raíz y con PostgreSQL configurado, ejecuta:
 
@@ -209,3 +223,5 @@ El Dockerfile construye ambos proyectos y sirve Angular desde NestJS. Puedes con
 El archivo Caddy de ejemplo automatiza HTTPS para un dominio cuyo DNS apunte a tu servidor. Caddy requiere acceso a los puertos 80/443 y una configuración del servidor adecuada. Mantén PostgreSQL en red privada, guarda secretos fuera del repositorio, conserva el volumen, configura backups y ejecuta el backend como servicio con reinicio automático. Si sitúas un proxy delante, configura `trust proxy` de Express solo para el proxy concreto y ajusta el rate limiting: de lo contrario todos los visitantes pueden compartir el límite de la IP del proxy.
 
 La app no se ha publicado automáticamente: la plataforma Sites no aloja directamente este conjunto NestJS/PostgreSQL, y no se han proporcionado servidor, dominio ni credenciales de despliegue.
+
+La tarjeta incluye el mensaje motivacional de la marca y una medalla dorada en PNG y PDF. Con un máximo de 20 puntos por día, los premios se pueden desbloquear desde 1, 9 y 18 días, respectivamente.

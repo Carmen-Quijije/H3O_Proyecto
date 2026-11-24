@@ -38,18 +38,18 @@ export class AppController {
     return (await this.db.query('SELECT id,ml,created_at FROM intakes WHERE user_id=$1 ORDER BY created_at DESC LIMIT 10000',[req.user.id])).rows;
   }
   @Post('intakes') async add(@Req() req: any,@Body() body: IntakeDto) {
-    return (await this.db.query('INSERT INTO intakes(user_id,ml) VALUES($1,$2) RETURNING id,ml,created_at',[req.user.id,body.ml])).rows[0];
+    const now=new Date();const day=localTime(now,req.user.timezone).day;
+    const client=await this.db.pool.connect();
+    try{
+      await client.query('BEGIN');
+      const result=await client.query('INSERT INTO intakes(user_id,ml,created_at,reward_day) VALUES($1,$2,$3,$4) RETURNING id,ml,created_at',[req.user.id,body.ml,now,day]);
+      await client.query("INSERT INTO reward_actions(user_id,day,action) VALUES($1,$2,'water') ON CONFLICT DO NOTHING",[req.user.id,day]);
+      await client.query('COMMIT');return result.rows[0];
+    }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
   }
   @Delete('intakes/:id') async remove(@Req() req: any,@Param('id') id: string) {
     if(!/^\d+$/.test(id)) throw new BadRequestException();
     await this.db.query('DELETE FROM intakes WHERE id=$1 AND user_id=$2',[Number(id),req.user.id]);return {ok:true};
-  }
-  @Get('rewards') async rewards(@Req() req: any) {
-    const rows=(await this.db.query('SELECT ml,created_at FROM intakes WHERE user_id=$1',[req.user.id])).rows;
-    const days: Record<string,number>={};
-    for(const row of rows) {const d=localTime(new Date(row.created_at),req.user.timezone).day;days[d]=(days[d]||0)+row.ml;}
-    const points=Object.values(days).reduce((sum,ml)=>sum+Math.min(100,Math.floor(ml/250)*10),0);
-    return {points,demo:true,items:[{name:'Insignia Primeras gotas',cost:10},{name:'10% en tu próxima botella',cost:250},{name:'Botella edición océano',cost:1000}]};
   }
   @Get('push/key') key() { return {publicKey:this.push.configured?process.env.VAPID_PUBLIC_KEY:null}; }
   @Post('push/subscribe') async subscribe(@Req() req:any,@Body() data:SubscriptionDto) {

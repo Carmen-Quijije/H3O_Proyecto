@@ -43,6 +43,20 @@ export class Database implements OnModuleInit {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS active_breaks BOOLEAN NOT NULL DEFAULT false;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS break_first_min INTEGER NOT NULL DEFAULT 600;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS break_second_min INTEGER NOT NULL DEFAULT 960;
+      ALTER TABLE intakes ADD COLUMN IF NOT EXISTS reward_day TEXT;
+      CREATE TABLE IF NOT EXISTS reward_actions (
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        day TEXT NOT NULL,
+        action TEXT NOT NULL CHECK (action IN ('water','break1','break2')),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY(user_id,day,action)
+      );
+      CREATE TABLE IF NOT EXISTS reward_unlocks (
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reward_id TEXT NOT NULL,
+        unlocked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY(user_id,reward_id)
+      );
     `);
   }
   async query(sql: string, args: any[] = []) { return this.pool.query(sql, args); }

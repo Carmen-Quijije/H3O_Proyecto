@@ -5,14 +5,18 @@ import QRCode from 'qrcode';
 import { Api, User, Intake } from './api.service';
 import { BottleComponent } from './bottle.component';
 import { ChartComponent } from './chart.component';
+import { RewardDownloadService } from './reward-download.service';
 type View='dashboard'|'history'|'reminders'|'rewards'|'profile'|'admin';
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,BottleComponent,ChartComponent],templateUrl:'./app.component.html'})
 export class AppComponent implements OnInit{
   user=signal<User|null>(null);entries=signal<Intake[]>([]);view=signal<View>('dashboard');message=signal('');error=signal('');busy=signal(false);loading=signal(true);storage=signal('');
-  authOpen=signal(false);register=signal(false);email='';password='';name='';custom=300;period=signal(7);rewards=signal<any>({points:0,items:[]});admin=signal<any>(null);qr=signal('');subscribed=signal(false);
+  authOpen=signal(false);register=signal(false);email='';password='';name='';custom=300;period=signal(7);rewards=signal<any>({points:0,today:{points:0,max:20,water:false,break1:false,break2:false},items:[],participationDays:0,streak:0,next:null});admin=signal<any>(null);qr=signal('');subscribed=signal(false);
+  cardMotivation="Cuidarte no siempre requiere grandes cambios; a veces empieza con un gesto tan simple como tomar un vaso de agua. Cada sorbo que das hoy es energía, claridad y salud que le regalas a tu cuerpo. Sigue adelante con este hábito, porque mereces sentirte bien todos los días.";
+  cardTheme='navy';cardPhrase='space';
+  cardPhrases:Record<string,string>={space:'Mi compromiso: hacer espacio para cuidarme.',step:'Pequeños pasos, grandes hábitos.',rhythm:'Me cuido a mi ritmo, un día a la vez.'};
   profile:Partial<User>={};start='08:00';end='20:00';breakFirst='10:00';breakSecond='16:00';qrUrl=location.origin;readonly Math=Math;
-  nav:{key:View;icon:string;label:string}[]=[{key:'dashboard',icon:'◫',label:'Mi día'},{key:'history',icon:'▥',label:'Historial'},{key:'reminders',icon:'♧',label:'Recordatorios'},{key:'rewards',icon:'◇',label:'Recompensas'},{key:'profile',icon:'◎',label:'Mi perfil'}];
-  constructor(public api:Api){}
+  nav:{key:View;icon:string;label:string}[]=[{key:'profile',icon:'◎',label:'Mi perfil'},{key:'dashboard',icon:'◫',label:'Mi día'},{key:'history',icon:'▥',label:'Historial'},{key:'reminders',icon:'♧',label:'Recordatorios'},{key:'rewards',icon:'◇',label:'Recompensas'}];
+  constructor(public api:Api,private rewardDownloads:RewardDownloadService){}
   async ngOnInit(){
     try{const health=await this.api.request('health');this.storage.set(health.storage);if(this.api.token){this.user.set(await this.api.request('me'));await this.load();}await this.makeQr();if('serviceWorker'in navigator&&window.isSecureContext){await navigator.serviceWorker.register('/sw.js');await this.syncPush();}}catch(e){this.showError(e);}finally{this.loading.set(false);}
   }
@@ -51,5 +55,7 @@ export class AppComponent implements OnInit{
   async disablePush(){const reg=await navigator.serviceWorker.getRegistration();const sub=await reg?.pushManager.getSubscription();if(sub){await this.api.request('push/unsubscribe','POST',{endpoint:sub.endpoint});await sub.unsubscribe();}this.subscribed.set(false);}
   async disable(){await this.action(async()=>{await this.disablePush();this.message.set('Notificaciones desactivadas en este dispositivo.');});}
   async testPush(){await this.action(async()=>{const r=await this.api.request('push/test','POST',{});this.message.set(`${r.accepted} de ${r.total} envíos aceptados por el proveedor. Comprueba la recepción en tu dispositivo.`);});}
+  async confirmBreak(slot:number){await this.action(async()=>{this.rewards.set(await this.api.request('rewards/breaks','POST',{slot}));this.message.set('Pausa confirmada. Tus puntos del día están actualizados.');});}
+  async downloadReward(id:string,format:'pdf'|'png'='pdf'){await this.action(async()=>{await this.rewardDownloads.download(id,format,this.cardTheme,this.cardPhrase);this.message.set('Tu recompensa está lista para guardar. Tus puntos se conservan.');});}
   async makeQr(){try{const url=new URL(this.qrUrl);if(!['http:','https:'].includes(url.protocol))throw new Error('Utiliza una URL HTTP o HTTPS');this.qr.set(await QRCode.toDataURL(url.href,{width:280,margin:2,color:{dark:'#102e4c',light:'#ffffff'}}));}catch(e){this.showError(e);}}
 }
